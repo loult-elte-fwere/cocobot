@@ -1,0 +1,2 @@
+DEFAULT_COOKIE = "nwoiw"
+DEFAULT_CHANNEL = "zizi"
