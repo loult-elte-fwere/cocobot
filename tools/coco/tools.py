@@ -1,5 +1,6 @@
 from urllib.request import urlopen
 import re
+import bidict
 
 doc = {0: 65, 1: 66, 2: 67, 3: 68, 4: 69, 5: 70, 6: 71, 7: 72, 8: 73, 9: 74, 10: 75, 11: 76, 12: 77, 13: 78, 14: 79,
        15: 80, 16: 81, 17: 82, 18: 83, 19: 84, 20: 101, 21: 102, 22: 103, 23: 104, 24: 105, 25: 106, 26: 107,
@@ -69,9 +70,9 @@ smilies = [":)", ":(", ";)", ":d", ":-o", ":s", ":$", "*-)", "-)", "^o)", ":p", 
            "nw$", "ba$", "ao$", "db$", "si$", "oo$", "co$", "bi$", "cc$", "ye$", "mo$", "aa$", "ci$", "uu$", "ff$",
            "zz$", "gt$", "ah$", "mm$", "?$", "xx$"]
 
-special_chars = {" ": "~", "!": "!", "\"": "*8", "$": "*7", "%": "*g", "'": "*8", "(": "(", ")": ")", "*": "*s", "=": "*h",
+special_chars = bidict.bidict({" ": "~", "!": "!", "\"": "*8", "$": "*7", "%": "*g", "'": "*8", "(": "(", ")": ")", "*": "*s", "=": "*h",
                  "?": "=", "@": "*m", "^": "*l", "_": "*0", "€": "*d", "à": "*a", "â": "*k", "ç": "*c", "è": "*e",
-                 "é": "*r", "ê": "*b", "î": "*i", "ï": "*j", "ô": "*o", "ù": "*f", "û": "*u"}
+                 "é": "*r", "ê": "*b", "î": "*i", "ï": "*j", "ô": "*o", "ù": "*f", "û": "*u"})
 
 
 def encode_msg(msg : str):
@@ -84,5 +85,9 @@ def encode_msg(msg : str):
 
     return msg
 
+
 def decode_msg(msg: str):
-    pass
+    """Decoding coco's weird message format"""
+    for coded, char in special_chars.inv.items():
+        msg = msg.replace(coded, char)
+    return msg
