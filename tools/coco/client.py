@@ -30,18 +30,15 @@ class Interlocutor:
 
 class CocoClient:
 
-    def __init__(self, nick: str, age: int, is_female: bool, zip_code: str):
-        self.nick = nick
-        self.age = age
-        self.is_female = is_female
-        self.zip_code = zip_code
+    def __init__(self):
         self.interlocutors = []  # type: List[Interlocutor]
+        self.current_interlocutor = None # type: Interlocutor
 
         self.user_id = None  # type:str
         self.user_pass = None  # type:str
 
-    def connect(self):
-        login_req = LoginRequest(self.nick, self.age, self.is_female, self.zip_code)
+    def connect(self, nick: str, age: int, is_female: bool, zip_code: str):
+        login_req = LoginRequest(nick, age, is_female, zip_code)
         self.user_id, self.user_pass = login_req.retrieve()
         logging.info("Logged in to coco as %s" % self.nick)
         post_login_req = PostLoginRequest(self.user_id, self.user_pass)

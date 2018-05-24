@@ -6,8 +6,6 @@ import logging
 
 from tools.base import CoboBot
 from tools.processors import MessageDispatcher, CommandsDispatcherProcessor, ConnectionDispatcher
-from tools.processors.messages import RandomTrigger, PikaAttackCommand, \
-    RandomCommandTrigger
 
 # setting up argument parser
 parser = argparse.ArgumentParser(description='Le lou bot')
