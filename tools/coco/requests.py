@@ -62,9 +62,9 @@ class PostLoginRequest(LoggedInRequest):
     def _get_url(self):
         return self.host + '52' + self.token + coco_cipher(self.client_id_str, self.password)
 
-    def _parse_response(self, response):
+    def _parse_response(self, response : str):
         """Checks if the post-login was successful"""
-        return response[:5] == "99556"
+        return response.startswith("99556")
 
 
 class PulseRequest(LoggedInRequest):
@@ -104,10 +104,10 @@ class SendMsgRequest(PulseRequest):
     def _get_url(self):
         return self.host + "99" + self.token + self.conv_id + str(randint(0, 6)) + encode_msg(self.msg)
 
-    def _parse_response(self, response):
+    def _parse_response(self, response: str):
         """Response to a send message request can either just be #97x or an
         actual message (like in pulse request)"""
-        if response[:2] == "97":
+        if response.startswith("97"):
             return []
         else:
             return super()._parse_response(response)
