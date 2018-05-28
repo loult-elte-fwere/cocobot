@@ -1,12 +1,14 @@
-from typing import List
-from .requests import LoginRequest, PostLoginRequest
+import random
+from typing import List, Dict, Tuple, Union
+from .requests import LoginRequest, PostLoginRequest, PulseRequest, SendMsgRequest
+from ..commons import BotMessage, Message, AbstractResponse
 
 import logging
 
 
 class Interlocutor:
 
-    def __init__(self, nick: str, age:int, city: str, is_male: bool, conv_id: str):
+    def __init__(self, nick: str, age: int, city: str, is_male: bool, conv_id: str):
         self.nick = nick
         self.age = age
         self.is_male = is_male
@@ -17,15 +19,22 @@ class Interlocutor:
     def from_string(cls, str):
         # 47130922100412004Rastapopoulos
         # 47 (age) 1 (sexe) 30922 (city id) 100412(conv id)
-        age = str[:2]
+        age = int(str[:2])
         is_male = int(str[2:3]) in (1, 6)
         city_id = str[3:8]
         conv_id = str[8:14]
         nick = str[17:]
         return cls(nick, age, city_id, is_male, conv_id)
 
+    def to_botmessage(self):
+        sex_indic = "un homme" if self.is_male else "une femme"
+        return BotMessage("%s est %s de %i ans" %(self.nick, sex_indic, self.age))
+
     def __eq__(self, other):
         return other.nick == self.nick
+
+    def __hash__(self):
+        return hash(self.nick)
 
 
 class CocoClient:
@@ -33,11 +42,35 @@ class CocoClient:
     def __init__(self):
         self.interlocutors = []  # type: List[Interlocutor]
         self.current_interlocutor = None # type: Interlocutor
+        self.histories = {}  # type:Dict[Interlocutor,List[Tuple]]
 
         self.user_id = None  # type:str
         self.user_pass = None  # type:str
+        self.nick = None  # type:str
+
+    def _format_history(self, interlocutor: Interlocutor):
+        if interlocutor in self.histories:
+            return [BotMessage("💬 %s: %s" % (nick, msg))
+                    for nick, msg in self.histories[interlocutor][:5]]
+        else:
+            return []
+
+    def __process_and_format_received_msg(self, received_msgs):
+        out = []
+        for user_code, msg in received_msgs:
+            user = Interlocutor.from_string(user_code)
+            self.histories[user].append((user.nick, msg))
+
+            if user == self.current_interlocutor:
+                out.append(Message("💬 %s: %s" % (user.nick, msg)))
+            else:
+                out.append(BotMessage("💬 %s: %s" % (user.nick, msg)))
+        return out
 
     def connect(self, nick: str, age: int, is_female: bool, zip_code: str):
+        self.nick = nick
+        self.histories = {}
+        self.current_interlocutor = None
         login_req = LoginRequest(nick, age, is_female, zip_code)
         self.user_id, self.user_pass = login_req.retrieve()
         logging.info("Logged in to coco as %s" % self.nick)
@@ -45,11 +78,35 @@ class CocoClient:
         post_login_req.retrieve()
         logging.info("Post login successful")
 
-    def pulse(self):
-        pass
+    def pulse(self) -> List[AbstractResponse]:
+        pulse_req = PulseRequest(self.user_id, self.user_pass)
+        received_msg = pulse_req.retrieve()
+        return self.__process_and_format_received_msg(received_msg)
 
-    def send_msg(self):
-        pass
+    def send_msg(self, msg: str) -> List[AbstractResponse]:
+        sendmsg_req = SendMsgRequest(self.user_id, self.user_pass, self.current_interlocutor.id, msg)
+        output = sendmsg_req.retrieve()
+        self.histories[self.current_interlocutor].append((self.nick, msg))
+        out_msg = Message("💬 %s: %s" % (self.nick, msg))
 
-    def switch_conv(self, nick: str=None):
-        pass
+        if output:
+            return [out_msg] + self.__process_and_format_received_msg(output)
+        else:
+            return [out_msg]
+
+    def switch_conv(self, nick: str=None) -> Union[List[BotMessage], BotMessage]:
+        new_interlocutor = None
+        if nick is not None:
+            for usr in self.interlocutors:
+                if usr.nick.upper() == nick.upper():
+                    new_interlocutor = usr
+                    break
+        else:
+            new_interlocutor = random.choice(self.interlocutors)
+
+        if new_interlocutor is None:
+            return BotMessage("Impossible de trouver l'utilisateur")
+        else:
+            self.current_interlocutor = new_interlocutor
+            return [new_interlocutor.to_botmessage()] + \
+                   self._format_history(self.current_interlocutor)
