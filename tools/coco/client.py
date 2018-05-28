@@ -1,5 +1,5 @@
 import random
-from typing import List, Dict, Tuple, Union
+from typing import List, Dict, Tuple, Union, Set
 from .requests import LoginRequest, PostLoginRequest, PulseRequest, SendMsgRequest
 from ..commons import BotMessage, Message, AbstractResponse
 
@@ -40,7 +40,7 @@ class Interlocutor:
 class CocoClient:
 
     def __init__(self):
-        self.interlocutors = []  # type: List[Interlocutor]
+        self.interlocutors = set()  # type: Set[Interlocutor]
         self.current_interlocutor = None # type: Interlocutor
         self.histories = {}  # type:Dict[Interlocutor,List[Tuple]]
 
@@ -59,6 +59,7 @@ class CocoClient:
         out = []
         for user_code, msg in received_msgs:
             user = Interlocutor.from_string(user_code)
+            self.interlocutors.add(user)
             self.histories[user].append((user.nick, msg))
 
             if user == self.current_interlocutor:
@@ -110,3 +111,7 @@ class CocoClient:
             self.current_interlocutor = new_interlocutor
             return [new_interlocutor.to_botmessage()] + \
                    self._format_history(self.current_interlocutor)
+
+    def list_convs(self):
+        return BotMessage("Conversations : " + ", ".join(["%s(%i)" % (usr.nick, usr.age)
+                                                          for usr in self.interlocutors]))
