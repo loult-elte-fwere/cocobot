@@ -28,7 +28,7 @@ class Interlocutor:
 
     def to_botmessage(self):
         sex_indic = "un homme" if self.is_male else "une femme"
-        return BotMessage("%s est %s de %i ans" %(self.nick, sex_indic, self.age))
+        return BotMessage("Conversation avec %s, %s de %i ans" %(self.nick, sex_indic, self.age))
 
     def __eq__(self, other):
         return other.nick == self.nick
@@ -47,6 +47,7 @@ class CocoClient:
         self.user_id = None  # type:str
         self.user_pass = None  # type:str
         self.nick = None  # type:str
+        self.is_connected = False
 
     def _format_history(self, interlocutor: Interlocutor):
         if interlocutor in self.histories:
@@ -61,6 +62,7 @@ class CocoClient:
             user = Interlocutor.from_string(user_code)
             self.interlocutors.add(user)
             self.histories[user].append((user.nick, msg))
+            logging.info("Msg from %s : %s" % (user.nick, msg))
 
             if user == self.current_interlocutor:
                 out.append(Message("💬 %s: %s" % (user.nick, msg)))
@@ -78,6 +80,7 @@ class CocoClient:
         post_login_req = PostLoginRequest(self.user_id, self.user_pass)
         post_login_req.retrieve()
         logging.info("Post login successful")
+        self.is_connected = True
 
     def pulse(self) -> List[AbstractResponse]:
         pulse_req = PulseRequest(self.user_id, self.user_pass)
