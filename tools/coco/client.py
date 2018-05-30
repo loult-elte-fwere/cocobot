@@ -72,6 +72,7 @@ class CocoClient:
         return out
 
     def connect(self, nick: str, age: int, is_female: bool, zip_code: str):
+        self.interlocutors = set()
         self.nick = nick
         self.histories = defaultdict(list)
         self.current_interlocutor = None
@@ -103,6 +104,9 @@ class CocoClient:
             return [BotMessage("Il faut sélectionner une conversation d'abord pd")]
 
     def switch_conv(self, nick: str=None) -> Union[List[BotMessage], BotMessage]:
+        if not self.interlocutors:
+            return BotMessage("Pas de conversations en cours")
+
         new_interlocutor = None
         if nick is not None:
             for usr in self.interlocutors:
@@ -110,7 +114,7 @@ class CocoClient:
                     new_interlocutor = usr
                     break
         else:
-            new_interlocutor = random.choice(self.interlocutors)
+            new_interlocutor = random.choice(list(self.interlocutors))
 
         if new_interlocutor is None:
             return BotMessage("Impossible de trouver l'utilisateur")

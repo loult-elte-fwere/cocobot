@@ -31,6 +31,7 @@ class CoboBot:
         self.cococlient = cococlient
 
     async def _send_message(self, message):
+        logging.debug("Sending message to server")
         if isinstance(message, dict):
             await self.socket.send(json.dumps(message))
         elif isinstance(message, bytes):

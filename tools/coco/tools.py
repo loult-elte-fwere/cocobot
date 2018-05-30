@@ -70,7 +70,7 @@ smilies = [":)", ":(", ";)", ":d", ":-o", ":s", ":$", "*-)", "-)", "^o)", ":p", 
            "nw$", "ba$", "ao$", "db$", "si$", "oo$", "co$", "bi$", "cc$", "ye$", "mo$", "aa$", "ci$", "uu$", "ff$",
            "zz$", "gt$", "ah$", "mm$", "?$", "xx$"]
 
-special_chars = bidict.bidict({" ": "~", "!": "!", "$": "*7", "%": "*g", "'": "*8", "(": "(", ")": ")", "*": "*s", "=": "*h",
+special_chars = bidict.bidict({" ": "_", "$": "*7", "%": "*g", "'": "*8", "(": "(", ")": ")", "*": "*s", "=": "*h",
                  "?": "=", "@": "*m", "^": "*l", "_": "*0", "€": "*d", "à": "*a", "â": "*k", "ç": "*c", "è": "*e",
                  "é": "*r", "ê": "*b", "î": "*i", "ï": "*j", "ô": "*o", "ù": "*f", "û": "*u"})
 
@@ -82,7 +82,7 @@ def encode_msg(msg : str):
 
     for char, replacement in special_chars.items():
         msg = msg.replace(char, replacement)
-
+    msg = ''.join([c for c in msg if ord(c) < 128])
     return msg
 
 
