@@ -28,7 +28,7 @@ class CommandsDispatcherProcessor(DispatcherBotProcessor):
                or text.upper().startswith("/" + trigger)
 
     def process(self, text: str, sender_id : str, users_list: UserList):
-        without_cmd = text[len(users_list.my_name)+1:]
+        without_cmd = text[len(self.trigger)+1:]
         response = super().process(without_cmd, sender_id, users_list)
         return Message(self.default_response) if response is None else response
 
@@ -65,7 +65,8 @@ class CocoConnectCommand(BaseCocobotCommand):
         if len(zip_code) != 5 or not zip_code.isnumeric():
             return Message("Le code postal c'est 5 chiffres, pd")
 
-        return self.cococlient.connect(nick, int(age), True, zip_code)
+        self.cococlient.connect(nick, int(age), True, zip_code)
+        return BotMessage("Connecté en tant que %s, de %s ans" % (nick, age))
 
 
 class CocoMsgCommand(BaseCocobotCommand):

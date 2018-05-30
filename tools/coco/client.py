@@ -1,9 +1,10 @@
+import logging
 import random
 from typing import List, Dict, Tuple, Union, Set
+from collections import defaultdict
+
 from .requests import LoginRequest, PostLoginRequest, PulseRequest, SendMsgRequest
 from ..commons import BotMessage, Message, AbstractResponse
-
-import logging
 
 
 class Interlocutor:
@@ -42,7 +43,7 @@ class CocoClient:
     def __init__(self):
         self.interlocutors = set()  # type: Set[Interlocutor]
         self.current_interlocutor = None # type: Interlocutor
-        self.histories = {}  # type:Dict[Interlocutor,List[Tuple]]
+        self.histories = defaultdict(list)  # type:defaultdict[Interlocutor,List[Tuple]]
 
         self.user_id = None  # type:str
         self.user_pass = None  # type:str
@@ -64,7 +65,7 @@ class CocoClient:
             self.histories[user].append((user.nick, msg))
             logging.info("Msg from %s : %s" % (user.nick, msg))
 
-            if user == self.current_interlocutor:
+            if self.current_interlocutor is not None and user == self.current_interlocutor:
                 out.append(Message("💬 %s: %s" % (user.nick, msg)))
             else:
                 out.append(BotMessage("💬 %s: %s" % (user.nick, msg)))
@@ -72,7 +73,7 @@ class CocoClient:
 
     def connect(self, nick: str, age: int, is_female: bool, zip_code: str):
         self.nick = nick
-        self.histories = {}
+        self.histories = defaultdict(list)
         self.current_interlocutor = None
         login_req = LoginRequest(nick, age, is_female, zip_code)
         self.user_id, self.user_pass = login_req.retrieve()
@@ -88,15 +89,18 @@ class CocoClient:
         return self.__process_and_format_received_msg(received_msg)
 
     def send_msg(self, msg: str) -> List[AbstractResponse]:
-        sendmsg_req = SendMsgRequest(self.user_id, self.user_pass, self.current_interlocutor.id, msg)
-        output = sendmsg_req.retrieve()
-        self.histories[self.current_interlocutor].append((self.nick, msg))
-        out_msg = Message("💬 %s: %s" % (self.nick, msg))
+        if self.current_interlocutor is not None:
+            sendmsg_req = SendMsgRequest(self.user_id, self.user_pass, self.current_interlocutor.id, msg)
+            output = sendmsg_req.retrieve()
+            self.histories[self.current_interlocutor].append((self.nick, msg))
+            out_msg = Message("💬 %s: %s" % (self.nick, msg))
 
-        if output:
-            return [out_msg] + self.__process_and_format_received_msg(output)
+            if output:
+                return [out_msg] + self.__process_and_format_received_msg(output)
+            else:
+                return [out_msg]
         else:
-            return [out_msg]
+            return [BotMessage("Il faut sélectionner une conversation d'abord pd")]
 
     def switch_conv(self, nick: str=None) -> Union[List[BotMessage], BotMessage]:
         new_interlocutor = None

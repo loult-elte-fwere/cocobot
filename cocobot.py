@@ -4,7 +4,6 @@ import argparse
 import asyncio
 import logging
 
-from tools.coco
 from tools.base import CoboBot
 from tools.processors import MessageDispatcher, CommandsDispatcherProcessor, ConnectionDispatcher
 from tools.processors.messages import *
@@ -35,11 +34,11 @@ root_messages_dispatcher = MessageDispatcher([coco_commands])
 connections_dispatcher = ConnectionDispatcher([])
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.DEBUG)
     args = parser.parse_args()
 
     cocobot = CoboBot(args.cookie, args.channel, args.domain, args.port, args.method,
-                      root_messages_dispatcher, connections_dispatcher)
+                      root_messages_dispatcher, connections_dispatcher, cococlient)
     asyncio.get_event_loop().run_until_complete(cocobot.listen())
 
 
