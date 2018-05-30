@@ -53,7 +53,7 @@ class CocoClient:
     def _format_history(self, interlocutor: Interlocutor):
         if interlocutor in self.histories:
             return [BotMessage("💬 %s: %s" % (nick, msg))
-                    for nick, msg in self.histories[interlocutor][:5]]
+                    for nick, msg in self.histories[interlocutor][-5:]]
         else:
             return []
 
