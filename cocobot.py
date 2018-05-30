@@ -24,9 +24,10 @@ connect_cmd = CocoConnectCommand(cococlient)
 msg_cmd = CocoMsgCommand(cococlient)
 list_cmd = CocoListCommand(cococlient)
 switch_cmd = CocoSwitchCommand(cococlient)
-help_cmd = BotHelp([connect_cmd, msg_cmd, list_cmd, switch_cmd])
+quit_cmd = CocoQuitCommand(cococlient)
+help_cmd = BotHelp([connect_cmd, msg_cmd, list_cmd, switch_cmd, quit_cmd])
 
-coco_commands = CommandsDispatcherProcessor([connect_cmd, msg_cmd, list_cmd, switch_cmd, help_cmd],
+coco_commands = CommandsDispatcherProcessor([connect_cmd, msg_cmd, list_cmd, switch_cmd, help_cmd, quit_cmd],
                                             "coco", default_response="de?")
 
 root_messages_dispatcher = MessageDispatcher([coco_commands])

@@ -62,6 +62,9 @@ class CocoConnectCommand(BaseCocobotCommand):
         if len(age) != 2 or not age.isnumeric():
             return Message("L'âge c'est avec DEUX chiffres (déso bulbi)")
 
+        if int(age) < 15:
+            return Message("L'âge minimum c'est 15 ans (déso bubbi)")
+
         if len(zip_code) != 5 or not zip_code.isnumeric():
             return Message("Le code postal c'est 5 chiffres, pd")
 
@@ -96,6 +99,15 @@ class CocoListCommand(BaseCocobotCommand):
 
     def process(self, text : str, sender_id : str, users_list : UserList):
         return self.cococlient.list_convs()
+
+
+class CocoQuitCommand(BaseCocobotCommand):
+    HELP_STR = "/cocoquit"
+    _cmd_suffix = "quit"
+
+    def process(self, text : str, sender_id : str, users_list : UserList):
+        self.cococlient.disconnect()
+        return BotMessage("Déconnecté!")
 
 
 class BotHelp(MessageProcessor):

@@ -71,11 +71,17 @@ class CocoClient:
                 out.append(BotMessage("💬 %s: %s" % (user.nick, msg)))
         return out
 
-    def connect(self, nick: str, age: int, is_female: bool, zip_code: str):
+    def disconnect(self):
         self.interlocutors = set()
-        self.nick = nick
         self.histories = defaultdict(list)
         self.current_interlocutor = None
+        self.is_connected = False
+        self.nick = None
+
+    def connect(self, nick: str, age: int, is_female: bool, zip_code: str):
+        self.disconnect()
+
+        self.nick = nick
         login_req = LoginRequest(nick, age, is_female, zip_code)
         self.user_id, self.user_pass = login_req.retrieve()
         logging.info("Logged in to coco as %s" % self.nick)
