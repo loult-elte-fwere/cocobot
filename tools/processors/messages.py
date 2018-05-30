@@ -1,5 +1,6 @@
 from tools.coco.client import CocoClient
 from tools.commons import Message, BotMessage
+from tools.constants import AUTHORIZED_USERIDS
 from .commons import *
 
 
@@ -104,6 +105,9 @@ class CocoListCommand(BaseCocobotCommand):
 class CocoQuitCommand(BaseCocobotCommand):
     HELP_STR = "/cocoquit"
     _cmd_suffix = "quit"
+
+    def match(self, text : str, sender_id : str, users_list : UserList):
+        return super().match(text, sender_id, users_list) and sender_id in AUTHORIZED_USERIDS
 
     def process(self, text : str, sender_id : str, users_list : UserList):
         self.cococlient.disconnect()
