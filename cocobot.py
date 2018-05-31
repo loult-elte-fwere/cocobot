@@ -15,6 +15,7 @@ parser.add_argument('--channel', type=str, help='channel to watch', default="")
 parser.add_argument('--domain', type=str, help='domain to connect to', default="loult.family")
 parser.add_argument('--port', type=int, help='port on which to connect the socket', default=80)
 parser.add_argument('--method', type=str, help='http or https', default="https")
+parser.add_argument('--verbose', help='print debug information', action='store_true')
 
 # setting up coco client
 cococlient = CocoClient()
@@ -35,8 +36,12 @@ root_messages_dispatcher = MessageDispatcher([coco_commands])
 connections_dispatcher = ConnectionDispatcher([])
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.DEBUG)
     args = parser.parse_args()
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger("websockets").setLevel(logging.INFO)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
 
     cocobot = CoboBot(args.cookie, args.channel, args.domain, args.port, args.method,
                       root_messages_dispatcher, connections_dispatcher, cococlient)

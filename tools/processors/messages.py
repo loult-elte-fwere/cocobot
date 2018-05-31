@@ -70,7 +70,10 @@ class CocoConnectCommand(BaseCocobotCommand):
             return Message("Le code postal c'est 5 chiffres, pd")
 
         self.cococlient.connect(nick, int(age), True, zip_code)
-        return BotMessage("Connecté en tant que %s, de %s ans" % (nick, age))
+        if self.cococlient.is_connected:
+            return BotMessage("Connecté en tant que %s, de %s ans" % (nick, age))
+        else:
+            return BotMessage("La connection a chié, déswe")
 
 
 class CocoMsgCommand(BaseCocobotCommand):

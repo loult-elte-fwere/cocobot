@@ -86,9 +86,12 @@ class CocoClient:
         self.user_id, self.user_pass = login_req.retrieve()
         logging.info("Logged in to coco as %s" % self.nick)
         post_login_req = PostLoginRequest(self.user_id, self.user_pass)
-        post_login_req.retrieve()
-        logging.info("Post login successful")
-        self.is_connected = True
+        if post_login_req.retrieve():
+            logging.info("Post login successful")
+            self.is_connected = True
+
+        else:
+            logging.info("Post login failed")
 
     def pulse(self) -> List[AbstractResponse]:
         pulse_req = PulseRequest(self.user_id, self.user_pass)

@@ -95,9 +95,9 @@ class CoboBot:
 
     async def coco_pulse(self):
         while True:
-            logging.debug("Checking coco for new messages")
             await sleep(self.COCO_PULSE_TICK)
             if self.cococlient.is_connected:
+                logging.debug("Checking coco for new messages")
                 new_messages = self.cococlient.pulse()
                 if isinstance(new_messages, list):
                     for response_obj in new_messages:

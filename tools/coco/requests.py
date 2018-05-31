@@ -1,3 +1,4 @@
+import logging
 from urllib.request import Request, urlopen
 from random import randint, choice, random
 from string import ascii_uppercase
@@ -64,6 +65,7 @@ class PostLoginRequest(LoggedInRequest):
 
     def _parse_response(self, response : str):
         """Checks if the post-login was successful"""
+        logging.debug(response)
         return response.startswith("99556")
 
 
