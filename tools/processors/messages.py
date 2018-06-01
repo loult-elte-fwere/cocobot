@@ -69,7 +69,11 @@ class CocoConnectCommand(BaseCocobotCommand):
         if len(zip_code) != 5 or not zip_code.isnumeric():
             return Message("Le code postal c'est 5 chiffres, pd")
 
-        self.cococlient.connect(nick, int(age), True, zip_code)
+        try:
+            self.cococlient.connect(nick, int(age), True, zip_code)
+        except ValueError:
+            return Message("Le code postal a pas l'air d'être bon")
+
         if self.cococlient.is_connected:
             return BotMessage("Connecté en tant que %s, de %s ans" % (nick, age))
         else:
@@ -83,6 +87,15 @@ class CocoMsgCommand(BaseCocobotCommand):
     def process(self, text : str, sender_id : str, users_list : UserList):
         text = text[len(self._cmd_suffix):].strip()
         return self.cococlient.send_msg(text)
+
+
+class CocoBroadcastCommand(BaseCocobotCommand):
+    HELP_STR = "/cocoall message"
+    _cmd_suffix = "all"
+
+    def process(self, text : str, sender_id : str, users_list : UserList):
+        text = text[len(self._cmd_suffix):].strip()
+        return self.cococlient.broadcast_msg(text)
 
 
 class CocoSwitchCommand(BaseCocobotCommand):

@@ -107,12 +107,26 @@ class CocoClient:
             self.histories[self.current_interlocutor].append((self.nick, msg))
             out_msg = Message("💬 %s: %s" % (self.nick, msg))
 
+            out = [out_msg]
             if output:
-                return [out_msg] + self.__process_and_format_received_msg(output)
-            else:
-                return [out_msg]
+                out += self.__process_and_format_received_msg(output)
+            return out
         else:
             return [BotMessage("Il faut sélectionner une conversation d'abord pd")]
+
+    def broadcast_msg(self, msg: str) -> List[AbstractResponse]:
+        if self.interlocutors:
+            outputs = [Message("💬 %s à tous: %s" % (self.nick, msg))]
+            for interlocutor in self.interlocutors:
+                sendmsg_req = SendMsgRequest(self.user_id, self.user_pass, interlocutor.id, msg)
+                output = sendmsg_req.retrieve()
+                self.histories[interlocutor].append((self.nick, msg))
+                if output:
+                    outputs += self.__process_and_format_received_msg(output)
+            return outputs
+        else:
+            return [BotMessage("Aucune conversation active")]
+
 
     def switch_conv(self, nick: str=None) -> Union[List[BotMessage], BotMessage]:
         if not self.interlocutors:
