@@ -86,12 +86,14 @@ class CocoClient:
         self.user_id, self.user_pass = login_req.retrieve()
         logging.info("Logged in to coco as %s" % self.nick)
         post_login_req = PostLoginRequest(self.user_id, self.user_pass)
-        if post_login_req.retrieve():
-            logging.info("Post login successful")
-            self.is_connected = True
-
-        else:
-            logging.info("Post login failed")
+        try:
+            if post_login_req.retrieve():
+                logging.info("Post login successful")
+                self.is_connected = True
+            else:
+                logging.info("Post login failed")
+        except ZeroDivisionError:
+            logging.info("Message cipher failed")
 
     def pulse(self) -> List[AbstractResponse]:
         pulse_req = PulseRequest(self.user_id, self.user_pass)
