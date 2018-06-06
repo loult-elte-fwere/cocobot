@@ -21,14 +21,11 @@ parser.add_argument('--verbose', help='print debug information', action='store_t
 cococlient = CocoClient()
 
 # setting up the various dispatchers
-connect_cmd = CocoConnectCommand(cococlient)
-msg_cmd = CocoMsgCommand(cococlient)
-list_cmd = CocoListCommand(cococlient)
-switch_cmd = CocoSwitchCommand(cococlient)
-quit_cmd = CocoQuitCommand(cococlient)
-help_cmd = BotHelp([connect_cmd, msg_cmd, list_cmd, switch_cmd, quit_cmd])
+cmds = [cmd_class(cococlient) for cmd_class in (CocoConnectCommand, CocoMsgCommand, CocoListCommand,
+                                                CocoSwitchCommand, CocoQuitCommand, CocoBroadcastCommand)]
+help_cmd = BotHelp(cmds)
 
-coco_commands = CommandsDispatcherProcessor([connect_cmd, msg_cmd, list_cmd, switch_cmd, help_cmd, quit_cmd],
+coco_commands = CommandsDispatcherProcessor(cmds,
                                             "coco", default_response="de?")
 
 root_messages_dispatcher = MessageDispatcher([coco_commands])
