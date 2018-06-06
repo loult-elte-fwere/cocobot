@@ -54,6 +54,7 @@ class CocoConnectCommand(BaseCocobotCommand):
         text = text[len(self._cmd_suffix):].strip()
         try:
             nick, age, zip_code = text.split()
+            nick = ''.join([c for c in nick if ord(c) < 128]) # removing non-utf8 chars
         except ValueError:
             return Message("Pas le bon nombre d'arguments, pd")
 
