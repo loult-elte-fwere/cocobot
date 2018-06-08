@@ -25,7 +25,7 @@ cmds = [cmd_class(cococlient) for cmd_class in (CocoConnectCommand, CocoMsgComma
                                                 CocoSwitchCommand, CocoQuitCommand, CocoBroadcastCommand)]
 help_cmd = BotHelp(cmds)
 
-coco_commands = CommandsDispatcherProcessor(cmds,
+coco_commands = CommandsDispatcherProcessor(cmds + [help_cmd],
                                             "coco", default_response="de?")
 
 root_messages_dispatcher = MessageDispatcher([coco_commands])
